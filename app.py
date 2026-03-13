@@ -1,196 +1,165 @@
 import streamlit as st
-import pandas as pd
-import numpy as np
-from scipy.stats import poisson
 import requests
-
-st.set_page_config(
-    page_title="AI Football Intelligence",
-    layout="wide"
-)
-
-st.title("⚽ AI Football Intelligence")
-
-############################################
-# CONFIG
-############################################
+import pandas as pd
 
 API_TOKEN = "5UyoUThTMPItCW81lTazLAgh3PM8QbHEjbXKBOcgBdrvBc4RSEvfhlGDUer6"
 
-LEAGUES = {
-    "Premier League": "E0 (2).csv",
-    "Championship": "E1.csv",
-    "La Liga": "SP1.csv",
-    "Serie A": "I1.csv",
-    "Bundesliga": "D1.csv",
-    "Greece": "G1.csv"
-}
+st.set_page_config(page_title="AI Football Predictor", layout="wide")
 
-############################################
-# SIDEBAR
-############################################
+st.title("⚽ AI Football Predictor")
 
-st.sidebar.title("⚙️ Controls")
+tab1, tab2, tab3 = st.tabs(["📅 Matches Today", "🧠 AI Prediction", "💰 Value Bets"])
 
-league = st.sidebar.selectbox(
-    "League",
-    list(LEAGUES.keys())
-)
+# ---------------------------------------------------
+# GET MATCHES
+# ---------------------------------------------------
 
-data = pd.read_csv(LEAGUES[league])
+def get_matches():
 
-teams = sorted(data["HomeTeam"].unique())
+    url = f"https://api.sportmonks.com/v3/football/fixtures/date/2026-03-26?api_token={API_TOKEN}&include=participants;league;predictions"
 
-home_team = st.sidebar.selectbox("Home Team", teams)
-away_team = st.sidebar.selectbox("Away Team", teams)
+    r = requests.get(url)
 
-predict_button = st.sidebar.button("Predict Match")
+    data = r.json()
 
-############################################
-# MODEL
-############################################
+    if "data" not in data:
+        st.error("API Error")
+        st.write(data)
+        return []
 
-league_home_goals = data["FTHG"].mean()
-league_away_goals = data["FTAG"].mean()
+    return data["data"]
 
-home_attack = data.groupby("HomeTeam")["FTHG"].mean() / league_home_goals
-away_attack = data.groupby("AwayTeam")["FTAG"].mean() / league_away_goals
+matches = get_matches()
 
-home_defense = data.groupby("HomeTeam")["FTAG"].mean() / league_away_goals
-away_defense = data.groupby("AwayTeam")["FTHG"].mean() / league_home_goals
-
-############################################
-# TABS
-############################################
-
-tab1, tab2, tab3 = st.tabs([
-    "📅 Matches Today",
-    "🧠 AI Prediction",
-    "💰 Value Bets"
-])
-
-############################################
+# ---------------------------------------------------
 # MATCHES TODAY
-############################################
+# ---------------------------------------------------
 
 with tab1:
 
     st.header("Today's Matches")
 
-    url = f"https://api.sportmonks.com/v3/football/fixtures/date/2026-03-26?api_token={API_TOKEN}&include=participants"
+    leagues = {}
 
-    response = requests.get(url)
-    json_data = response.json()
+    for m in matches:
 
-    if "data" not in json_data:
+        league = m["league"]["name"]
 
-        st.error("API connection problem")
-        st.write(json_data)
+        if league not in leagues:
+            leagues[league] = []
 
-    else:
+        leagues[league].append(m)
 
-        matches = json_data["data"]
+    for league in leagues:
 
-        for match in matches:
+        st.subheader(league)
 
-            teams = match.get("participants", [])
+        for match in leagues[league]:
 
-            if len(teams) >= 2:
+            home = match["participants"][0]["name"]
+            away = match["participants"][1]["name"]
 
-                home = teams[0]["name"]
-                away = teams[1]["name"]
+            logo_home = match["participants"][0]["image_path"]
+            logo_away = match["participants"][1]["image_path"]
 
-                time = match["starting_at"]
+            time = match["starting_at"]
 
-                col1, col2, col3 = st.columns([4,1,4])
+            col1,col2,col3 = st.columns([1,2,1])
 
-                with col1:
-                    st.markdown(f"### {home}")
+            col1.image(logo_home,width=40)
+            col2.write(f"**{home} vs {away}**")
+            col3.image(logo_away,width=40)
 
-                with col2:
-                    st.markdown("### vs")
+            st.caption(time)
 
-                with col3:
-                    st.markdown(f"### {away}")
-
-                st.caption(time)
-
-                st.divider()
-
-############################################
+# ---------------------------------------------------
 # AI PREDICTION
-############################################
+# ---------------------------------------------------
 
 with tab2:
 
-    if predict_button:
+    st.header("AI Match Predictions")
 
-        home_xg = home_attack[home_team] * away_defense[away_team] * league_home_goals
-        away_xg = away_attack[away_team] * home_defense[home_team] * league_away_goals
+    for match in matches:
 
-        max_goals = 6
+        home = match["participants"][0]["name"]
+        away = match["participants"][1]["name"]
 
-        home_probs = [poisson.pmf(i, home_xg) for i in range(max_goals)]
-        away_probs = [poisson.pmf(i, away_xg) for i in range(max_goals)]
+        st.subheader(f"{home} vs {away}")
 
-        home_win = 0
-        draw = 0
-        away_win = 0
+        predictions = match.get("predictions", [])
 
-        for i in range(max_goals):
-            for j in range(max_goals):
+        for p in predictions:
 
-                prob = home_probs[i] * away_probs[j]
+            code = p["type"]["code"]
 
-                if i > j:
-                    home_win += prob
-                elif i == j:
-                    draw += prob
-                else:
-                    away_win += prob
+            if code == "fulltime-result-probability":
 
-        c1, c2, c3 = st.columns(3)
+                home_p = p["predictions"]["home"]
+                draw_p = p["predictions"]["draw"]
+                away_p = p["predictions"]["away"]
 
-        c1.metric("Home Win", f"{round(home_win*100,2)}%")
-        c2.metric("Draw", f"{round(draw*100,2)}%")
-        c3.metric("Away Win", f"{round(away_win*100,2)}%")
+                c1,c2,c3 = st.columns(3)
 
-        st.subheader("Expected Goals")
+                c1.metric("Home Win",f"{home_p}%")
+                c2.metric("Draw",f"{draw_p}%")
+                c3.metric("Away Win",f"{away_p}%")
 
-        st.write(home_team, round(home_xg,2))
-        st.write(away_team, round(away_xg,2))
+            if code == "over-under-2_5-probability":
 
-############################################
+                over = p["predictions"]["yes"]
+                under = p["predictions"]["no"]
+
+                st.write("Over 2.5:",over,"%")
+                st.write("Under 2.5:",under,"%")
+
+            if code == "both-teams-to-score-probability":
+
+                yes = p["predictions"]["yes"]
+                no = p["predictions"]["no"]
+
+                st.write("BTTS Yes:",yes,"%")
+                st.write("BTTS No:",no,"%")
+
+        st.divider()
+
+# ---------------------------------------------------
 # VALUE BETS
-############################################
+# ---------------------------------------------------
 
 with tab3:
 
-    st.header("Value Bet Scanner")
+    st.header("Value Bets Scanner")
 
-    odds = st.number_input("Bookmaker odds", value=2.20)
+    value_bets = []
 
-    home_xg = home_attack[home_team] * away_defense[away_team] * league_home_goals
-    away_xg = away_attack[away_team] * home_defense[home_team] * league_away_goals
+    for match in matches:
 
-    model_prob = home_xg / (home_xg + away_xg)
+        home = match["participants"][0]["name"]
+        away = match["participants"][1]["name"]
 
-    implied_prob = 1 / odds
+        predictions = match.get("predictions", [])
 
-    edge = model_prob - implied_prob
+        for p in predictions:
 
-    if edge > 0.05:
+            if p["type"]["code"] == "fulltime-result-probability":
 
-        st.success("🔥 VALUE BET FOUND")
+                home_prob = p["predictions"]["home"]
 
-        st.write("Match:", home_team, "vs", away_team)
+                if home_prob > 70:
 
-        st.write("Model probability:", round(model_prob*100,2), "%")
+                    value_bets.append({
+                        "Match":f"{home} vs {away}",
+                        "Pick":"Home Win",
+                        "Probability":home_prob
+                    })
 
-        st.write("Odds:", odds)
+    if len(value_bets) == 0:
 
-        st.write("Edge:", round(edge*100,2), "%")
+        st.write("No strong value bets today")
 
     else:
 
-        st.info("No value bet detected")
+        df = pd.DataFrame(value_bets)
+
+        st.dataframe(df)
