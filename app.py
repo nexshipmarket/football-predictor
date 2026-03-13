@@ -66,18 +66,11 @@ response = requests.get(url)
 games = response.json()
 st.header("Today's Matches")
 
-for game in games:
-
-  home = game["home_team"]
-    away = game["Swansea City"]
-
 st.header("Today's Matches")
 
 for game in games:
 
     home = game["home_team"]
     away = game["away_team"]
-
-    st.write(home, "vs", away)["away_team"]
 
     st.write(home, "vs", away)
