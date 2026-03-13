@@ -71,5 +71,5 @@ for game in games:
     home = game["Wrexham"]
     away = game["Swansea City"]
 
-    st.write(Wrexham, "vs", Swansea City)
+    st.write("Wrexham", "vs", "Swansea City")
     
