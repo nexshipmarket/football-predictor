@@ -68,9 +68,18 @@ st.header("Today's Matches")
 
 st.header("Today's Matches")
 
-for game in games:
+if isinstance(games, list):
 
-    home = game["home_team"]
-    away = game["away_team"]
+    for game in games:
 
+        if "home_team" in game and "away_team" in game:
+
+            home = game["home_team"]
+            away = game["away_team"]
+
+            st.write(home, "vs", away)
+
+else:
+
+    st.write("No matches found today.")
     st.write(home, "vs", away)
