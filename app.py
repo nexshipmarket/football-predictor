@@ -59,7 +59,7 @@ if st.button("Predict"):
 import requests
 import streamlit as st
 
-API_KEY = "5UyoUThTMPItCW81lTazLAgh3PM8QbHEjbXKBOcgBdrvBc4RSEvfhlGDUer6"
+API_KEY = "https://api.sportmonks.com/v3/football/fixtures/date/2026-03-26?api_token=YOUR_TOKEN&include=participants"
 
 url = f"https://api.sportmonks.com/v3/football/fixtures/date/2026-03-26?api_token={API_KEY}&include=participants"
 
