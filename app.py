@@ -71,10 +71,9 @@ for game in games:
   home = game["home_team"]
     away = game["Swansea City"]
 
-    for game in games:
+   for game in games:
 
     home = game["home_team"]
     away = game["away_team"]
 
     st.write(home, "vs", away)
-    
