@@ -56,3 +56,20 @@ if st.button("Predict"):
     st.write("Home Win:", round(home_win*100,2), "%")
     st.write("Draw:", round(draw*100,2), "%")
     st.write("Away Win:", round(away_win*100,2), "%")
+import requests
+API_KEY = "wk_efa97ec4c9e3d71034ba1a48e73f3509"
+
+url = f"https://api.the-odds-api.com/v4/sports/soccer_epl/odds/?apiKey={API_KEY}&regions=eu&markets=h2h"
+
+response = requests.get(url)
+
+games = response.json()
+st.header("Today's Matches")
+
+for game in games:
+
+    home = game["Wrexham"]
+    away = game["Swansea City"]
+
+    st.write(Wrexham, "vs", Swansea City)
+    
