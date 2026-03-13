@@ -57,6 +57,7 @@ if st.button("Predict"):
     st.write("Draw:", round(draw*100,2), "%")
     st.write("Away Win:", round(away_win*100,2), "%")
 import requests
+
 API_KEY = "wk_efa97ec4c9e3d71034ba1a48e73f3509"
 
 url = f"https://api.the-odds-api.com/v4/sports/soccer_epl/odds/?apiKey={API_KEY}&regions=eu&markets=h2h"
@@ -64,7 +65,6 @@ url = f"https://api.the-odds-api.com/v4/sports/soccer_epl/odds/?apiKey={API_KEY}
 response = requests.get(url)
 
 games = response.json()
-st.header("Today's Matches")
 
 st.header("Today's Matches")
 
@@ -72,14 +72,11 @@ if isinstance(games, list):
 
     for game in games:
 
-        if "home_team" in game and "away_team" in game:
+        home = game["home_team"]
+        away = game["away_team"]
 
-            home = game["home_team"]
-            away = game["away_team"]
-
-            st.write(home, "vs", away)
+        st.write(home, "vs", away)
 
 else:
 
     st.write("No matches found today.")
-    st.write(home, "vs", away)
