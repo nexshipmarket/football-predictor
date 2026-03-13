@@ -60,28 +60,24 @@ import requests
 
 API_KEY = "wk_efa97ec4c9e3d71034ba1a48e73f3509"
 
-url = f"https://api.the-odds-api.com/v4/sports/upcoming/odds/?apiKey={API_KEY}&regions=eu&markets=h2h"
+url = f"https://api.the-odds-api.com/v4/sports/soccer_epl/odds/?regions=eu&markets=h2h&apiKey={API_KEY}"
 
 response = requests.get(url)
-
 games = response.json()
 
 st.header("Today's Matches")
 
-if isinstance(games, list):
+if isinstance(games, list) and len(games) > 0:
 
     for game in games:
 
         home = game["home_team"]
         away = game["away_team"]
 
-        st.write(home, "vs", away)
+        st.write(home + " vs " + away)
 
-        bookmakers = game.get("bookmakers", [])
-
-        if bookmakers:
-
-            outcomes = bookmakers[0]["markets"][0]["outcomes"]
+        if game["bookmakers"]:
+            outcomes = game["bookmakers"][0]["markets"][0]["outcomes"]
 
             home_odds = outcomes[0]["price"]
             away_odds = outcomes[1]["price"]
@@ -89,6 +85,8 @@ if isinstance(games, list):
             st.write("Home odds:", home_odds)
             st.write("Away odds:", away_odds)
 
+        st.write("---")
+
 else:
 
-    st.write("No matches today")
+    st.write("No matches today or API limit reached")
