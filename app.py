@@ -57,36 +57,28 @@ if st.button("Predict"):
     st.write("Draw:", round(draw*100,2), "%")
     st.write("Away Win:", round(away_win*100,2), "%")
 import requests
+import streamlit as st
 
-API_KEY = "wk_efa97ec4c9e3d71034ba1a48e73f3509"
+API_KEY = "5UyoUThTMPItCW81lTazLAgh3PM8QbHEjbXKBOcgBdrvBc4RSEvfhlGDUer6"
 
-url = f"https://api.the-odds-api.com/v4/sports/soccer_epl/odds/?regions=eu&markets=h2h&apiKey={API_KEY}"
+url = f"https://api.sportmonks.com/v3/football/fixtures/date/2026-03-26?api_token={API_KEY}&include=participants"
 
 response = requests.get(url)
-games = response.json()
+data = response.json()
 
 st.header("Today's Matches")
 
-if isinstance(games, list) and len(games) > 0:
+fixtures = data.get("data", [])
 
-    for game in games:
+for match in fixtures:
 
-        home = game["home_team"]
-        away = game["away_team"]
+    participants = match.get("participants", [])
 
-        st.write(home + " vs " + away)
+    if len(participants) >= 2:
 
-        if game["bookmakers"]:
-            outcomes = game["bookmakers"][0]["markets"][0]["outcomes"]
+        home = participants[0]["name"]
+        away = participants[1]["name"]
 
-            home_odds = outcomes[0]["price"]
-            away_odds = outcomes[1]["price"]
+        time = match["starting_at"]
 
-            st.write("Home odds:", home_odds)
-            st.write("Away odds:", away_odds)
-
-        st.write("---")
-
-else:
-
-    st.write("No matches today or API limit reached")
+        st.write(f"{home} vs {away} | {time}")
