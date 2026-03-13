@@ -16,8 +16,7 @@ tab1, tab2, tab3 = st.tabs(["📅 Matches Today", "🧠 AI Prediction", "💰 Va
 
 def get_matches():
 
-    url = f"https://api.sportmonks.com/v3/football/fixtures/date/2026-03-26?api_token={API_TOKEN}&include=participants;league;predictions"
-
+    url = url = f"https://api.sportmonks.com/v3/football/fixtures/date/2026-03-26?api_token={API_TOKEN}&include=participants;league"
     r = requests.get(url)
 
     data = r.json()
@@ -88,40 +87,7 @@ with tab2:
         st.subheader(f"{home} vs {away}")
 
         predictions = match.get("predictions", [])
-
-        for p in predictions:
-
-            code = p["type"]["code"]
-
-            if code == "fulltime-result-probability":
-
-                home_p = p["predictions"]["home"]
-                draw_p = p["predictions"]["draw"]
-                away_p = p["predictions"]["away"]
-
-                c1,c2,c3 = st.columns(3)
-
-                c1.metric("Home Win",f"{home_p}%")
-                c2.metric("Draw",f"{draw_p}%")
-                c3.metric("Away Win",f"{away_p}%")
-
-            if code == "over-under-2_5-probability":
-
-                over = p["predictions"]["yes"]
-                under = p["predictions"]["no"]
-
-                st.write("Over 2.5:",over,"%")
-                st.write("Under 2.5:",under,"%")
-
-            if code == "both-teams-to-score-probability":
-
-                yes = p["predictions"]["yes"]
-                no = p["predictions"]["no"]
-
-                st.write("BTTS Yes:",yes,"%")
-                st.write("BTTS No:",no,"%")
-
-        st.divider()
+st.divider()
 
 # ---------------------------------------------------
 # VALUE BETS
