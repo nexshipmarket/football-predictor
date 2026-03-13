@@ -68,8 +68,13 @@ st.header("Today's Matches")
 
 for game in games:
 
-    home = game["Wrexham"]
+  home = game["home_team"]
     away = game["Swansea City"]
 
-    st.write("Wrexham", "vs", "Swansea City")
+    for game in games:
+
+    home = game["home_team"]
+    away = game["away_team"]
+
+    st.write(home, "vs", away)
     
