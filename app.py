@@ -60,7 +60,7 @@ import requests
 
 API_KEY = "wk_efa97ec4c9e3d71034ba1a48e73f3509"
 
-url = f"https://api.the-odds-api.com/v4/sports/soccer_epl/odds/?apiKey={API_KEY}&regions=eu&markets=h2h"
+url = f"https://api.the-odds-api.com/v4/sports/upcoming/odds/?apiKey={API_KEY}&regions=eu&markets=h2h"
 
 response = requests.get(url)
 
