@@ -60,7 +60,7 @@ import requests
 
 API_KEY = "wk_efa97ec4c9e3d71034ba1a48e73f3509"
 
-url = f"https://api.the-odds-api.com/v4/sports/soccer/odds/?apiKey={API_KEY}&regions=eu&markets=h2h"
+url = f"https://api.the-odds-api.com/v4/sports/soccer_epl/odds/?apiKey={API_KEY}&regions=eu&markets=h2h"
 
 response = requests.get(url)
 
@@ -77,6 +77,18 @@ if isinstance(games, list):
 
         st.write(home, "vs", away)
 
+        bookmakers = game.get("bookmakers", [])
+
+        if bookmakers:
+
+            outcomes = bookmakers[0]["markets"][0]["outcomes"]
+
+            home_odds = outcomes[0]["price"]
+            away_odds = outcomes[1]["price"]
+
+            st.write("Home odds:", home_odds)
+            st.write("Away odds:", away_odds)
+
 else:
 
-    st.write("No matches found today.")
+    st.write("No matches today")
