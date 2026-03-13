@@ -15,7 +15,7 @@ st.title("⚽ AI Football Intelligence")
 # CONFIG
 ############################################
 
-API_TOKEN = "PUT_YOUR_TOKEN_HERE"
+API_TOKEN = "5UyoUThTMPItCW81lTazLAgh3PM8QbHEjbXKBOcgBdrvBc4RSEvfhlGDUer6"
 
 LEAGUES = {
     "Premier League": "E0 (2).csv",
