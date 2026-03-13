@@ -59,26 +59,23 @@ if st.button("Predict"):
 import requests
 import streamlit as st
 
-API_KEY = "TO_TOKEN_SOU"
+API_TOKEN = "5UyoUThTMPItCW81lTazLAgh3PM8QbHEjbXKBOcgBdrvBc4RSEvfhlGDUer6"
 
-url = f"https://api.sportmonks.com/v3/football/fixtures/date/2026-03-26?api_token={API_KEY}&include=participants"
+url = f"https://api.sportmonks.com/v3/football/fixtures/date/2026-03-26?api_token={API_TOKEN}&include=participants"
 
 response = requests.get(url)
+
 data = response.json()
 
 st.header("Today's Matches")
 
-fixtures = data.get("data", [])
+for match in data["data"]:
 
-for match in fixtures:
+    teams = match["participants"]
 
-    participants = match.get("participants", [])
+    home = teams[0]["name"]
+    away = teams[1]["name"]
 
-    if len(participants) >= 2:
+    time = match["starting_at"]
 
-        home = participants[0]["name"]
-        away = participants[1]["name"]
-
-        time = match["starting_at"]
-
-        st.write(f"{home} vs {away} | {time}")
+    st.write(home + " vs " + away + " | " + time)
