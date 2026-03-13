@@ -100,7 +100,7 @@ with tab1:
 
     st.header("Today's Matches")
 
-    API_TOKEN = "ΒΑΛΕ_TOKEN"
+    "API_TOKEN = "5UyoUThTMPItCW81lTazLAgh3PM8QbHEjbXKBOcgBdrvBc4RSEvfhlGDUer6"
 
     url = f"https://api.sportmonks.com/v3/football/fixtures/date/2026-03-26?api_token={API_TOKEN}&include=participants"
 
